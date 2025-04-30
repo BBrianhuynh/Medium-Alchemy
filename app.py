@@ -1,48 +1,68 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "secret"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Player.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+# Admin page
+admin = Admin(app, url='/admin')
 
-class Users(db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(20), nullabe=False)
+    password = db.Column(db.String(128), nullable=False)
 
 class Leaderboard(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     
 class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    
+
+admin.add_view(ModelView(User, db.session))
 
 # Login page
-@app.route('/')
-def index():
-    return render_template('login.html')
-
-# Attempt Login
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET','POST'])
 def login():
-    username = request.form['username']
-    password = request.form['password']
-    if (Student.query.filter_by(username=username, password=password).first() != None):
-        return redirect(url_for('student_panel', username=username))
-    elif (Teacher.query.filter_by(username=username, password=password).first() != None):
-        return redirect(url_for('teacher_panel', username=username))
-    elif (Admins.query.filter_by(username=username, password=password).first() != None):
-        return redirect('/admin')
-    flash('Invalid credentials')
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if (user and check_password_hash(user.password, password)):
+            session['username'] = username
+            return redirect(url_for('game', username=username))
+        flash('Invalid credentials')
     return render_template('login.html')
 
-# Register user
-@app.route('/register')
+# Register user page
+@app.route('/register', methods=['GET','POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        retype_password = request.form['retype_password']
+        if password != retype_password:
+            flash("Passwords do not match.")
+            return redirect(url_for('register'))
+        user = User.query.filter_by(username=username).first()
+        if user:
+            flash("Username already exists.")
+            return redirect(url_for('register'))
+        hashed_password = generate_password_hash(password)
+        newUser = User(username=username, password=hashed_password)
+        db.session.add(newUser)
+        db.session.commit()
+        flash("Registration successful!")
+        return redirect(url_for('login'))
+    return render_template('register.html')
 
 # Settings page
-@app.route('/')
+@app.route('/settings')
 def settings():
     return render_template('settings.html')
 
@@ -56,19 +76,17 @@ def leaderboard():
 def getLeaderboardRecords():
     return
 
-# Gamepanel page
-def gamepanel():
-    return render_template('gamepanel.html')
+# Game page
+@app.route('/game/<username>')
+def game(username):
+    return render_template('game.html')
 
 # Get info from user for gamepanel
 @app.route('/get')
 def getUserInfo():
     return
 
-
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.config["SECRET_KEY"] = "secret"
     app.run(debug=True)
