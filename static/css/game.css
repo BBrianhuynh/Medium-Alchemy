@@ -1,0 +1,31 @@
+#inventory-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    background-color: #f4f4f4;
+    border-left: 2px solid #ccc;
+    padding: 10px;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  
+  #inventory-panel h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+    text-align: center;
+  }
+  
+  #inventory-list {
+    list-style: none;
+    padding-left: 0;
+    font-size: 0.9em;
+  }
+  
+  #inventory-list li {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
