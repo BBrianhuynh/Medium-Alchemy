@@ -10,13 +10,13 @@
       <p id="x"></p>
       <p id="y"></p>
     </div>
-    <script src="{{ url_for('static', filename='js/gameLogic.js') }}"></script>
   </head>
   <body id="body">
     <div id="inventory-panel">
       <h2>Inventory</h2>
       <ul id="inventory-list"></ul>
     </div>
-    <button id="clear" onclick="clear()">Clear</button>
+    <button id="clear" onclick="clearScreen()">Clear</button>
   </body>
+  <script src="{{ url_for('static', filename='js/gameLogic.js') }}"></script>
 </html>

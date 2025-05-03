@@ -24,6 +24,7 @@ class Ingredient {
         document.body.appendChild(this.item);
 
         allItems.push(this);
+        elementsOnScreen.push(this);
         this.dragItem();
     }
 
@@ -102,9 +103,9 @@ class Ingredient {
 
     destroy() {
         document.body.removeChild(this.item);
-        const index = allItems.indexOf(this);
+        const index = elementsOnScreen.indexOf(this);
         if (index != -1) {
-            allItems.splice(index, 1);
+            elementsOnScreen.splice(index, 1);
         }
     }
 
@@ -136,17 +137,24 @@ function combine(elementOneId, elementTwoId) {
         const item = allItems[itemId];
         const combinations = item.parents;
         for (const combination in combinations) {
+            // Check if we can combine elements to create it's parent element
             if ((combination[0] == elementOneId && combination[1] == elementTwoId) || (combination[0] == elementTwoId && combination[1] == elementOneId)) {
-                return itemId;
+                // Since it can be combined, check if the element is what we already found.  If not add it to the discovered list.
+                for (const discoveredItems in discovered){
+                    if (discoveredItems == itemId)
+                        return itemId;
+                }
+                discovered.push(itemId);
             }
         }
     }
     return null;
 }
 
-function clear() {
+function clearScreen() {
     elementsOnScreen.forEach(item => item.destroy());
-    elementsOnScreen = [];
+    elementsOnScreen.length = 0;
+    
 }
 
 document.addEventListener("DOMContentLoaded", function () {
