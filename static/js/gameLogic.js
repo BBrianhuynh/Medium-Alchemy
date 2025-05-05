@@ -13,7 +13,7 @@ class Ingredient {
         this.centerX = x;
         this.centerY = y;
 
-        this.DomId = "a" + allItems.length;
+        this.DomId = "a" + Object.keys(allItems).length;
 
         this.item = new Image();
         this.item.src = this.image;
@@ -24,7 +24,7 @@ class Ingredient {
         this.item.style.position = "absolute";
         document.body.appendChild(this.item);
 
-        allItems[id]= this;
+        allItems[this.id]= this;
         elementsOnScreen.push(this);
         this.dragItem();
     }
@@ -97,9 +97,11 @@ class Ingredient {
     }
 
     destroy() {
-        document.body.removeChild(this.item);
+        if (this.item && this.item.parentNode == document.body) {
+            document.body.removeChild(this.item);
+        }
         const index = elementsOnScreen.indexOf(this);
-        if (index != -1) {
+        if (index !== -1) {
             elementsOnScreen.splice(index, 1);
         }
     }
@@ -116,19 +118,21 @@ function updateInventory() {
         list.style.cursor = "pointer";
         list.onclick = (e) => {
             // Limiting to a max of 5 items on screen, otherwise last in first out
-            if (elementsOnScreen.length >= 5*2) {
+            if (elementsOnScreen.length >= 5) {
                 const first = elementsOnScreen.splice(0, 1)[0];
                 first.destroy();
             }            console.log(elementsOnScreen[0]);
 
-            new Ingredient(itemId, itemData.itemName, itemData.imageIcon, e.clientX, e.clientY);
+            new Ingredient(itemId, itemData.itemName, itemData.itemIcon, e.clientX, e.clientY);
         };
 
         inventoryList.appendChild(list);
     });
 }
 
+// TODO: Trying to fix error where it won't combine two elements to create an already discovered element, this is likely due to DomId and ItemId being cross contaminated
 function combine(elementOneId, elementTwoId) {
+    console.log(elementOneId);
     Object.keys(allItems).forEach(itemId =>{
         const itemData = allItems[itemId];
         const combinations = itemData.parents;
@@ -137,17 +141,16 @@ function combine(elementOneId, elementTwoId) {
                 // Check if we can combine elements to create it's parent element
                 if ((combination[0] == elementOneId && combination[1] == elementTwoId) || (combination[0] == elementTwoId && combination[1] == elementOneId)) {
                     // Since it can be combined, check if the element is what we already found.  If not add it to the discovered list.
-                    Object.keys(discovered).forEach(discoveredItemId => {
-                        if (discoveredItemId == itemId){
-                            return itemId;
-                        }
-                    })
-                    discovered[itemId] = allItems[itemId];
+                    if (!discovered[itemId]){
+                        discovered[itemId] = allItems[itemId];
+                    }
+                    
                     const loc = {"x": elementOneId.x, "y": elementOneId.y};
                     const newIngredient = new Ingredient(itemId, itemData.itemName, itemData.itemIcon, loc["x"], loc["y"]);
                     elementsOnScreen.push(newIngredient);
-                    elementsOnScreen.find(item => item.id == elementOneId).destroy();
-                    elementsOnScreen.find(item => item.id == elementTwoId).destroy();
+                    console.log(elementsOnScreen);
+                    elementsOnScreen.find(item => item.item.id == elementOneId).destroy();
+                    elementsOnScreen.find(item => item.item.id == elementTwoId).destroy();
                     updateInventory();
                     return itemId;
                 }
@@ -157,9 +160,9 @@ function combine(elementOneId, elementTwoId) {
 }
 
 function clearScreen() {
-    elementsOnScreen.forEach(item => item.destroy());
-    elementsOnScreen.length = 0;
-    
+    while (elementsOnScreen.length > 0) {
+        elementsOnScreen[0].destroy();
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {

@@ -16,15 +16,20 @@ admin = Admin(app, url='/admin')
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False)
+    username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    # discovered = db.Column(db.JSON, default=list)
+    discoveries = db.relationship('Discovered', back_populates='user', lazy=True)
 
-class Leaderboard(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+class Discovered(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    itemName = db.Column(db.String(20), nullable=False)
+    userId = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', back_populates='discoveries')
     
 class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    achievementName = db.Column(db.String(100), nullable=False)
+    achievementDescription = db.Column(db.String(100), nullable = False)
 
 admin.add_view(ModelView(User, db.session))
 
