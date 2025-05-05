@@ -1,29 +1,30 @@
 const radius = 50;
 const elementsOnScreen = [];
-const discovered = [];
-const allItems = [];
+const discovered = {};
+const allItems = {};
 
 class Ingredient {
-    constructor(itemNum, name, image, x, y) {
+    constructor(id,itemNum, name, image, x, y) {
+        this.id = id;
         this.itemNum = itemNum;
         this.name = name;
         this.image = image;
-
+        
         this.centerX = x;
         this.centerY = y;
 
-        this.id = "a" + allItems.length;
+        this.DomId = "a" + allItems.length;
 
         this.item = new Image();
         this.item.src = this.image;
-        this.item.id = this.id;
+        this.item.id = this.DomId;
         this.item.width = radius * 2;
         this.item.height = radius * 2;
         
         this.item.style.position = "absolute";
         document.body.appendChild(this.item);
 
-        allItems.push(this);
+        allItems[id]= this;
         elementsOnScreen.push(this);
         this.dragItem();
     }
@@ -71,8 +72,6 @@ class Ingredient {
 
             document.getElementById("x").innerHTML = "x: " + that.centerY;
             document.getElementById("y").innerHTML = "y: " + that.centerX;
-
-            checkCollision(that.centerX, that.centerY);
         }
 
         function stopDrag() {
@@ -80,22 +79,18 @@ class Ingredient {
             document.onmousemove = null;
             const collidedElementId = checkCollision(that.centerX, that.centerY)
             if (collidedElementId) {
-                const newItemId = combine(that.id, collidedElementId)
-                if (newItemId != null) {
-                    this.itemId = newItemId;
-                     
-                }
+                combine(that.id, collidedElementId);
             }
         }
 
         function checkCollision(x, y) {
-            for (let i = 0; i < allItems.length; i++) {
-                let distance = Math.sqrt((x - allItems[i].x) ** 2 + (y - allItems[i].y) ** 2);
+            for (let i = 0; i < elementsOnScreen.length; i++) {
+                const item = elementsOnScreen[i];
+                let distance = Math.sqrt((x - item.x) ** 2 + (y - item.y) ** 2);
                 if (distance > 0 && distance <= radius) {
-                    console.log("collision!");
-                    return allItems[i].id;
+                    console.log("collision with:", item.id);
+                    return item.id;
                 }
-
             }
             return null;
         }
@@ -114,18 +109,19 @@ class Ingredient {
 function updateInventory() {
     const inventoryList = document.getElementById("inventory-list");
     inventoryList.innerHTML = "";
-    discovered.forEach(item => {
+    Object.keys(discovered).forEach(itemId => {
+        const itemData = discovered[itemId];
         const list = document.createElement("li");
-        list.textContent = item.name;
+        list.textContent = itemData.itemName;
         list.style.cursor = "pointer";
         list.onclick = (e) => {
             // Limiting to a max of 5 items on screen, otherwise last in first out
-            if (elementsOnScreen.length >= 5) {
-                const first = elementsOnScreen.splice(0, 1);
+            if (elementsOnScreen.length >= 5*2) {
+                const first = elementsOnScreen.splice(0, 1)[0];
                 first.destroy();
-            }
-            const newItem = new Ingredient(0, item.name, item.image, e.clientX, e.clientY);
-            elementsOnScreen.push(newItem);
+            }            console.log(elementsOnScreen[0]);
+
+            new Ingredient(itemId, itemData.itemName, itemData.imageIcon, e.clientX, e.clientY);
         };
 
         inventoryList.appendChild(list);
@@ -133,22 +129,31 @@ function updateInventory() {
 }
 
 function combine(elementOneId, elementTwoId) {
-    for (const itemId in allItems) {
-        const item = allItems[itemId];
-        const combinations = item.parents;
-        for (const combination in combinations) {
-            // Check if we can combine elements to create it's parent element
-            if ((combination[0] == elementOneId && combination[1] == elementTwoId) || (combination[0] == elementTwoId && combination[1] == elementOneId)) {
-                // Since it can be combined, check if the element is what we already found.  If not add it to the discovered list.
-                for (const discoveredItems in discovered){
-                    if (discoveredItems == itemId)
-                        return itemId;
+    Object.keys(allItems).forEach(itemId =>{
+        const itemData = allItems[itemId];
+        const combinations = itemData.parents;
+        if (Array.isArray(combinations)){
+            for (const combination of combinations) {
+                // Check if we can combine elements to create it's parent element
+                if ((combination[0] == elementOneId && combination[1] == elementTwoId) || (combination[0] == elementTwoId && combination[1] == elementOneId)) {
+                    // Since it can be combined, check if the element is what we already found.  If not add it to the discovered list.
+                    Object.keys(discovered).forEach(discoveredItemId => {
+                        if (discoveredItemId == itemId){
+                            return itemId;
+                        }
+                    })
+                    discovered[itemId] = allItems[itemId];
+                    const loc = {"x": elementOneId.x, "y": elementOneId.y};
+                    const newIngredient = new Ingredient(itemId, itemData.itemName, itemData.itemIcon, loc["x"], loc["y"]);
+                    elementsOnScreen.push(newIngredient);
+                    elementsOnScreen.find(item => item.id == elementOneId).destroy();
+                    elementsOnScreen.find(item => item.id == elementTwoId).destroy();
+                    updateInventory();
+                    return itemId;
                 }
-                discovered.push(itemId);
             }
         }
-    }
-    return null;
+    });
 }
 
 function clearScreen() {
@@ -158,9 +163,45 @@ function clearScreen() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    discovered.push({ id: "001", name: "Fire", image: "/Fire.png" });
-    discovered.push({ id: "002", name: "Air", image: "/Air.png" });
-    discovered.push({ id: "003", name: "Water", image: "/Water.png" });
+    discovered["001"] = {
+        "itemName": "Flour",
+        "parents": [],
+        "isFinal": false,
+        "itemIcon": "Flour.png"
+    };
+    discovered["002"] = {
+        "itemName": "Water",
+        "parents": [],
+        "isFinal": false,
+        "itemIcon": "Water.png"
+    }; discovered["003"] = {
+        "itemName": "Milk",
+        "parents": [],
+        "isFinal": false,
+        "itemIcon": "Milk.png"
+    };
+    allItems["004"] = {
+        "itemName": "Bread",
+        "parents": [
+            [
+                "001",
+                "002"
+            ]
+        ],
+        "isFinal": false,
+        "itemIcon": "Bread.png"
+    };
+    allItems["005"] = {
+        "itemName": "Dough",
+        "parents": [
+          [
+            "001",
+            "003"
+          ]
+        ],
+        "isFinal": false,
+        "itemIcon": "Dough.png"
+      }
 
     updateInventory();
 });

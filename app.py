@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import JSON
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret"
@@ -17,6 +18,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    # discovered = db.Column(db.JSON, default=list)
 
 class Leaderboard(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -53,8 +55,8 @@ def register():
         if user:
             flash("Username already exists.")
             return redirect(url_for('register'))
-        hashed_password = generate_password_hash(password)
-        newUser = User(username=username, password=hashed_password)
+        hashedPassword = generate_password_hash(password)
+        newUser = User(username=username, password=hashedPassword)
         db.session.add(newUser)
         db.session.commit()
         flash("Registration successful!")
@@ -81,6 +83,9 @@ def getLeaderboardRecords():
 def game(username):
     return render_template('game.html')
 
+@app.route('/game/<username>/getDiscovered')
+def getDiscovered(username):
+    return
 # Get info from user for gamepanel
 @app.route('/get')
 def getUserInfo():
