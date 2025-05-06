@@ -29,3 +29,7 @@
     border-bottom: 1px solid #ddd;
     cursor: pointer;
   }
+
+  .ingredient {
+    z-index: 1100;
+  }

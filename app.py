@@ -22,8 +22,9 @@ class User(db.Model):
 
 class Discovered(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    itemId = db.Column(db.String(5), nullable=False)
     itemName = db.Column(db.String(20), nullable=False)
-    userId = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    username = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)
     user = db.relationship('User', back_populates='discoveries')
     
 class Achievement(db.Model):
@@ -88,13 +89,31 @@ def getLeaderboardRecords():
 def game(username):
     return render_template('game.html')
 
-@app.route('/game/<username>/getDiscovered')
-def getDiscovered(username):
-    return
+# Get game data for user
+@app.route('/game/<username>/getDiscoveredData')
+def getDiscoveredData(username):
+    allDiscoveredItems = Discovered.query.filter_by(username=username).with_entities(Discovered.itemId, Discovered.itemName).all()
+    allDiscoveredItems = [{'itemId': item[0], 'itemName': item[1]} for item in allDiscoveredItems]
+    return jsonify(allDiscoveredItems)
+
+# Add discovered item to Discovered table
+@app.route('/game/<username>/addToDiscovered', methods=['POST'])
+def addToDiscovered(username):
+    data = request.get_json()
+    itemId = data.get('itemId')
+    itemName = data.get('itemName')
+    print(itemId)
+    user = User.query.filter_by(username=username).first()
+    newDiscovery = Discovered(itemId=itemId, itemName=itemName, username=user.username)
+    db.session.add(newDiscovery)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Item added to discovered'})
+
 # Get info from user for gamepanel
 @app.route('/get')
 def getUserInfo():
     return
+
 
 if __name__ == '__main__':
     with app.app_context():
