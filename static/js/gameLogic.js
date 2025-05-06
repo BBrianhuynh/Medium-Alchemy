@@ -2,6 +2,7 @@ const radius = 50;
 const elementsOnScreen = [];
 const discovered = {};
 const allItems = {};
+let ingredientCounter = 0;
 
 class Ingredient {
     constructor(id,itemNum, name, image, x, y) {
@@ -13,7 +14,7 @@ class Ingredient {
         this.centerX = x;
         this.centerY = y;
 
-        this.DomId = "a" + Object.keys(allItems).length;
+        this.DomId = "a" + ingredientCounter++;
 
         this.item = new Image();
         this.item.src = this.image;
@@ -24,7 +25,6 @@ class Ingredient {
         this.item.style.position = "absolute";
         document.body.appendChild(this.item);
 
-        allItems[this.id]= this;
         elementsOnScreen.push(this);
         this.dragItem();
     }
@@ -77,9 +77,9 @@ class Ingredient {
         function stopDrag() {
             document.onmouseup = null;
             document.onmousemove = null;
-            const collidedElementId = checkCollision(that.centerX, that.centerY)
-            if (collidedElementId) {
-                combine(that.id, collidedElementId);
+            const collidedElement = checkCollision(that.centerX, that.centerY)
+            if (collidedElement) {
+                combine(that, collidedElement);
             }
         }
 
@@ -89,7 +89,7 @@ class Ingredient {
                 let distance = Math.sqrt((x - item.x) ** 2 + (y - item.y) ** 2);
                 if (distance > 0 && distance <= radius) {
                     console.log("collision with:", item.id);
-                    return item.id;
+                    return item;
                 }
             }
             return null;
@@ -101,7 +101,7 @@ class Ingredient {
             document.body.removeChild(this.item);
         }
         const index = elementsOnScreen.indexOf(this);
-        if (index !== -1) {
+        if (index != -1) {
             elementsOnScreen.splice(index, 1);
         }
     }
@@ -130,33 +130,30 @@ function updateInventory() {
     });
 }
 
-// TODO: Trying to fix error where it won't combine two elements to create an already discovered element, this is likely due to DomId and ItemId being cross contaminated
-function combine(elementOneId, elementTwoId) {
-    console.log(elementOneId);
+function combine(elementOne, elementTwo) {
     Object.keys(allItems).forEach(itemId =>{
         const itemData = allItems[itemId];
         const combinations = itemData.parents;
         if (Array.isArray(combinations)){
             for (const combination of combinations) {
                 // Check if we can combine elements to create it's parent element
-                if ((combination[0] == elementOneId && combination[1] == elementTwoId) || (combination[0] == elementTwoId && combination[1] == elementOneId)) {
+                console.log(combination[0] + combination[1]);
+                if ((combination[0] == elementOne.id && combination[1] == elementTwo.id) || (combination[0] == elementTwo.id && combination[1] == elementOne.id)) {
                     // Since it can be combined, check if the element is what we already found.  If not add it to the discovered list.
                     if (!discovered[itemId]){
                         discovered[itemId] = allItems[itemId];
                     }
-                    
-                    const loc = {"x": elementOneId.x, "y": elementOneId.y};
-                    const newIngredient = new Ingredient(itemId, itemData.itemName, itemData.itemIcon, loc["x"], loc["y"]);
+                    const newIngredient = new Ingredient(itemId, itemData.itemName, itemData.itemIcon, elementOne.x, elementOne.x);
                     elementsOnScreen.push(newIngredient);
-                    console.log(elementsOnScreen);
-                    elementsOnScreen.find(item => item.item.id == elementOneId).destroy();
-                    elementsOnScreen.find(item => item.item.id == elementTwoId).destroy();
+                    elementOne.destroy();
+                    elementTwo.destroy();
                     updateInventory();
                     return itemId;
                 }
             }
         }
     });
+    console.log("Could not find");
 }
 
 function clearScreen() {
@@ -178,6 +175,24 @@ document.addEventListener("DOMContentLoaded", function () {
         "isFinal": false,
         "itemIcon": "Water.png"
     }; discovered["003"] = {
+        "itemName": "Milk",
+        "parents": [],
+        "isFinal": false,
+        "itemIcon": "Milk.png"
+    };
+    allItems["001"] = {
+        "itemName": "Flour",
+        "parents": [],
+        "isFinal": false,
+        "itemIcon": "Flour.png"
+    };
+    allItems["002"] = {
+        "itemName": "Water",
+        "parents": [],
+        "isFinal": false,
+        "itemIcon": "Water.png"
+    }; 
+    allItems["003"] = {
         "itemName": "Milk",
         "parents": [],
         "isFinal": false,
