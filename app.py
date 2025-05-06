@@ -10,6 +10,9 @@ app.config["SECRET_KEY"] = "secret"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Player.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# old - STARTER_ELEMS = ["001", "002", "003"]
+STARTER_ELEMS = ["183", "564", "159", "001"] 
+
 db = SQLAlchemy(app)
 # Admin page
 admin = Admin(app, url='/admin')
@@ -18,14 +21,15 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    discoveries = db.relationship('Discovered', back_populates='user', lazy=True)
+    #discoveries = db.relationship('Discovered', back_populates='user', lazy=True)
+    discovered = db.Column(JSON, nullable=False, default=list)
 
-class Discovered(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    itemId = db.Column(db.String(5), nullable=False)
-    itemName = db.Column(db.String(20), nullable=False)
-    username = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)
-    user = db.relationship('User', back_populates='discoveries')
+# class Discovered(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     itemId = db.Column(db.String(5), nullable=False)
+#     itemName = db.Column(db.String(20), nullable=False)
+#     username = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)
+#     user = db.relationship('User', back_populates='discoveries')
     
 class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -63,6 +67,7 @@ def register():
             return redirect(url_for('register'))
         hashedPassword = generate_password_hash(password)
         newUser = User(username=username, password=hashedPassword)
+        newUser.discovered = STARTER_ELEMS.copy()
         db.session.add(newUser)
         db.session.commit()
         flash("Registration successful!")
@@ -92,28 +97,45 @@ def game(username):
 # Get game data for user
 @app.route('/game/<username>/getDiscoveredData')
 def getDiscoveredData(username):
-    allDiscoveredItems = Discovered.query.filter_by(username=username).with_entities(Discovered.itemId, Discovered.itemName).all()
-    allDiscoveredItems = [{'itemId': item[0], 'itemName': item[1]} for item in allDiscoveredItems]
-    return jsonify(allDiscoveredItems)
+    user = User.query.filter_by(username=username).first()
+    return jsonify(user.discovered or [])
+# def getDiscoveredData(username):
+#     allDiscoveredItems = Discovered.query.filter_by(username=username).with_entities(Discovered.itemId, Discovered.itemName).all()
+#     allDiscoveredItems = [{'itemId': item[0], 'itemName': item[1]} for item in allDiscoveredItems]
+#     return jsonify(allDiscoveredItems)
 
 # Add discovered item to Discovered table
 @app.route('/game/<username>/addToDiscovered', methods=['POST'])
 def addToDiscovered(username):
     data = request.get_json()
-    itemId = data.get('itemId')
-    itemName = data.get('itemName')
-    print(itemId)
+    new_discovered_list = data.get('discovered')
+
+    if not isinstance(new_discovered_list, list):
+        return jsonify({'success': False, 'message': 'Invalid discovered list'}), 400
+
     user = User.query.filter_by(username=username).first()
-    newDiscovery = Discovered(itemId=itemId, itemName=itemName, username=user.username)
-    db.session.add(newDiscovery)
+    if not user:
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    user.discovered = new_discovered_list
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Item added to discovered'})
+
+    return jsonify({'success': True, 'message': 'Discovered list updated'})
+# def addToDiscovered(username):
+#     data = request.get_json()
+#     itemId = data.get('itemId')
+#     itemName = data.get('itemName')
+#     print(itemId)
+#     user = User.query.filter_by(username=username).first()
+#     newDiscovery = Discovered(itemId=itemId, itemName=itemName, username=user.username)
+#     db.session.add(newDiscovery)
+#     db.session.commit()
+#     return jsonify({'success': True, 'message': 'Item added to discovered'})
 
 # Get info from user for gamepanel
 @app.route('/get')
 def getUserInfo():
     return
-
 
 if __name__ == '__main__':
     with app.app_context():
