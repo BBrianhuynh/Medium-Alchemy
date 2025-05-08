@@ -183,6 +183,7 @@ async function combine(elementOne, elementTwo) {
         if(newElement) checkAchievements(newIngredient);
         elementOne.destroy();
         elementTwo.destroy();
+        updateDiscoveryCounter();
         updateInventory();
         saveWorkspace();
         return resultElemId;
@@ -216,6 +217,7 @@ async function getDiscoveredData(){
 
 async function loadAllDiscovered(){
     discovered = await getDiscoveredData();
+    updateDiscoveryCounter();
     updateInventory();
 }
 
@@ -323,6 +325,11 @@ function checkAchievements(newIngredient){
     displayAchievements();
 }
 
+function updateDiscoveryCounter() {
+    const counter = document.getElementById("discovery-counter");
+    counter.textContent = `Discovered: ${discovered.length} / ${Object.keys(allItems).length}`;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     // Load allItems from JSON file
     const responseItems = await fetch("/static/data/items.json");
@@ -338,6 +345,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadWorkspace();
     loadAchievements();
     displayAchievements();
+    updateDiscoveryCounter();
     console.log("discovered: ", discovered);
     console.log("all items: ", allItems);
 });
