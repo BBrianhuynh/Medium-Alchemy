@@ -23,13 +23,8 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     #discoveries = db.relationship('Discovered', back_populates='user', lazy=True)
     discovered = db.Column(JSON, nullable=False, default=list)
-
-# class Discovered(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     itemId = db.Column(db.String(5), nullable=False)
-#     itemName = db.Column(db.String(20), nullable=False)
-#     username = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)
-#     user = db.relationship('User', back_populates='discoveries')
+    workspace = db.Column(JSON, nullable=False, default=list)
+    achievements = db.Column(JSON, nullable=False, default=list)
     
 class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -94,15 +89,32 @@ def getLeaderboardRecords():
 def game(username):
     return render_template('game.html')
 
+@app.route('/game/<username>/getWorkspace')
+def getWorkspace(username):
+    user = User.query.filter_by(username=username).first()
+    return jsonify(user.workspace or [])
+
+@app.route('/game/<username>/saveWorkspace', methods=["POST"])
+def saveWorkspace(username):
+    newWorkspace = request.get_json().get('workspace')
+
+    if not isinstance(newWorkspace, list):
+        return jsonify({'success': False, 'message': 'Invalid workspace list'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    user.workspace = newWorkspace
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Workspace updated'})
+
 # Get game data for user
 @app.route('/game/<username>/getDiscoveredData')
 def getDiscoveredData(username):
     user = User.query.filter_by(username=username).first()
     return jsonify(user.discovered or [])
-# def getDiscoveredData(username):
-#     allDiscoveredItems = Discovered.query.filter_by(username=username).with_entities(Discovered.itemId, Discovered.itemName).all()
-#     allDiscoveredItems = [{'itemId': item[0], 'itemName': item[1]} for item in allDiscoveredItems]
-#     return jsonify(allDiscoveredItems)
 
 # Add discovered item to Discovered table
 @app.route('/game/<username>/addToDiscovered', methods=['POST'])
@@ -121,16 +133,30 @@ def addToDiscovered(username):
     db.session.commit()
 
     return jsonify({'success': True, 'message': 'Discovered list updated'})
-# def addToDiscovered(username):
-#     data = request.get_json()
-#     itemId = data.get('itemId')
-#     itemName = data.get('itemName')
-#     print(itemId)
-#     user = User.query.filter_by(username=username).first()
-#     newDiscovery = Discovered(itemId=itemId, itemName=itemName, username=user.username)
-#     db.session.add(newDiscovery)
-#     db.session.commit()
-#     return jsonify({'success': True, 'message': 'Item added to discovered'})
+
+# Get game data for user
+@app.route('/game/<username>/getAchievements')
+def getAchievements(username):
+    user = User.query.filter_by(username=username).first()
+    return jsonify(user.achievements or [])
+
+# Add discovered item to Discovered table
+@app.route('/game/<username>/saveAchievements', methods=['POST'])
+def saveAchievements(username):
+    data = request.get_json()
+    newAchievementsList = data.get('achievements')
+
+    if not isinstance(newAchievementsList, list):
+        return jsonify({'success': False, 'message': 'Invalid achievement list'}), 400
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    user.achievements = newAchievementsList
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Achievements list updated'})
 
 # Get info from user for gamepanel
 @app.route('/get')

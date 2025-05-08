@@ -6,8 +6,10 @@ const inventoryLeftEdge = document.getElementById('inventory-list').getBoundingC
 const MAX_ELEMS_ON_SCREEN = 7;
 
 let discovered = [];
+let unlockedAchievements = [];
 const allItems = {};
 const allCombos = {};
+const allAchievements = {};
 let ingredientCounter = 0;
 
 class Ingredient {
@@ -91,6 +93,7 @@ class Ingredient {
             if (itemRight >= inventoryLeftEdge + radius / 2) {
                 that.destroy();
             }
+            saveWorkspace();
         }
 
         function checkCollision(x, y) {
@@ -146,23 +149,6 @@ function updateInventory(e) {
 
         inventoryList.appendChild(list);
     });
-
-    // Object.keys(discovered).forEach(itemId => {
-    //     const itemData = discovered[itemId];
-    //     const list = document.createElement("li");
-    //     list.textContent = itemData.itemName;
-    //     list.style.cursor = "pointer";
-    //     list.onclick = (e) => {
-    //         // Limiting to a max of 5 items on screen, otherwise last in first out
-    //         if (elementsOnScreen.length >= 5) {
-    //             const first = elementsOnScreen.splice(0, 1)[0];
-    //             first.destroy();
-    //         }
-    //         const created = new Ingredient(itemId, itemData.itemName, e.clientX - radius, e.clientY - radius);
-    //     };
-
-    //     inventoryList.appendChild(list);
-    // });
 }
 
 async function combine(elementOne, elementTwo) {
@@ -183,48 +169,24 @@ async function combine(elementOne, elementTwo) {
                 }
             }
         }
-        if(comboExists) break
+        if(comboExists) break;
     }
 
     if(comboExists){
-        if(!discovered.includes(resultElemId)) {
+        let newElement = !discovered.includes(resultElemId)
+        if(newElement) {
             discovered.push(resultElemId);
             await addToDiscovered(discovered);
+            // checkAchievements(newIngredient);
         }
         const newIngredient = new Ingredient(resultElemId, allItems[resultElemId].itemName, elementTwo.x, elementTwo.y);
+        if(newElement) checkAchievements(newIngredient);
         elementOne.destroy();
         elementTwo.destroy();
         updateInventory();
+        saveWorkspace();
         return resultElemId;
     }
-    // var combinedID;
-    // if (parseInt(elementOne.id) < parseInt(elementTwo.id)) {
-    //     combinedID = elementOne.id + "," + elementTwo.id;
-    // }
-    // else { 
-    //     combinedID = elementTwo.id + "," + elementOne.id;
-    // }
-
-    // console.log(combinedID);
-    // let index = Object.keys(allCombos).indexOf(combinedID);
-    // if (index !== -1) {
-    //     itemId = allCombos[combinedID];
-
-    //     if (!discovered[itemId]) {
-    //         console.log(discovered);
-    //         discovered[itemId] = allItems[itemId];
-    //         await addToDiscovered(itemId, allItems[itemId].itemName);
-    //     }
-
-    //     const newIngredient = new Ingredient(itemId, allItems[itemId].itemName, elementTwo.x, elementTwo.y);
-    //     //const newIngredient = new Ingredient(itemId, allItems[itemId].itemName, allItems[itemId].itemIcon, 272, 768);
-
-    //     //elementsOnScreen.push(newIngredient);
-    //     elementOne.destroy();
-    //     elementTwo.destroy();
-    //     updateInventory();
-    //     return itemId;
-    // }
 }
 
 async function addToDiscovered(discovered){
@@ -242,7 +204,7 @@ async function addToDiscovered(discovered){
 }
 
 async function getDiscoveredData(){
-    newDiscovered = "";
+    let newDiscovered = "";
     await fetch(`/game/${username}/getDiscoveredData`)
     .then(response => response.json())
     .then(data => {
@@ -257,86 +219,125 @@ async function loadAllDiscovered(){
     updateInventory();
 }
 
+async function loadWorkspace(){
+    let newWorkspace = [];
+    await fetch(`/game/${username}/getWorkspace`)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        newWorkspace = data;
+
+        for(let i = 0; i < newWorkspace.length; i++){
+            const id = newWorkspace[i][0];
+            const centerX = newWorkspace[i][1];
+            const centerY = newWorkspace[i][2];
+            const itemName = allItems[id].itemName;
+            const newIng = new Ingredient(id, itemName, centerX, centerY);
+            elementsOnScreen.push(newIng);
+        }
+    });
+}
+
+async function saveWorkspace(){
+    let workspace = []
+    for(let i = 0; i < elementsOnScreen.length; i++){
+        const currIng = elementsOnScreen[i];
+        const newWorkspaceElem = [currIng.id, currIng.centerX, currIng.centerY];
+        workspace.push(newWorkspaceElem)
+    }
+
+    const data = {
+        "workspace":workspace
+    }
+    console.log("saveWorkspace data: ", data)
+
+    const request = await fetch(`/game/${username}/saveWorkspace`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    const response = await request.json();
+    console.log("Response saveWorkspace: ", response)
+}
+
+async function loadAchievements(){
+    let newAchievements = "";
+    await fetch(`/game/${username}/getAchievements`)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        newAchievements = data;
+    });
+
+    unlockedAchievements = newAchievements;
+    displayAchievements();
+}
+
+async function saveAchievements(){
+    const data = {
+        achievements: unlockedAchievements
+    }
+    const request = await fetch(`/game/${username}/saveAchievements`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    const response = await request.json();
+    console.log("Response saveAchievements: ", response)
+}
+
 function clearScreen() {
     while (elementsOnScreen.length > 0) {
         elementsOnScreen[0].destroy();
     }
+    saveWorkspace();
+}
+
+function displayAchievements(){
+    for(let i = 0; i < unlockedAchievements.length; i++){
+        console.log("Unlocked Achievement: ", allAchievements[unlockedAchievements[i]].name);
+    }
+}
+
+function checkAchievements(newIngredient){
+    const keys = Object.keys(allAchievements);
+    for (const allAchievementIndex in keys) {
+        if(!unlockedAchievements.includes(keys[allAchievementIndex])){
+            if (allAchievements[keys[allAchievementIndex]].type == "count"){
+                const countRequired = allAchievements[keys[allAchievementIndex]].unlockCondition;
+                const discoveredLength = Object.keys(discovered).length;
+                if (discoveredLength == countRequired){
+                    unlockedAchievements.push(keys[allAchievementIndex]);
+                    saveAchievements();
+                }
+            }
+            else if (allAchievements[keys[allAchievementIndex]].type == "discover"){
+                const itemId = allAchievements[keys[allAchievementIndex]].unlockCondition;
+                if (newIngredient.id == itemId){
+                    unlockedAchievements.push(keys[allAchievementIndex]);
+                    saveAchievements();
+                }
+            }
+        }
+    }
+    displayAchievements();
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-    // discovered["001"] = {
-    //     "itemName": "Flour",
-    //     "parents": [],
-    //     "isFinal": false,
-    //     "itemIcon": "Flour.png"
-    // };
-    // discovered["002"] = {
-    //     "itemName": "Water",
-    //     "parents": [],
-    //     "isFinal": false,
-    //     "itemIcon": "Water.png"
-    // };
-    // discovered["003"] = {
-    //     "itemName": "Milk",
-    //     "parents": [],
-    //     "isFinal": false,
-    //     "itemIcon": "Milk.png"
-    // };
-    // allItems["001"] = {
-    //     "itemName": "Flour",
-    //     "parents": [],
-    //     "isFinal": false,
-    //     "itemIcon": "Flour.png"
-    // };
-    // allItems["002"] = {
-    //     "itemName": "Water",
-    //     "parents": [],
-    //     "isFinal": false,
-    //     "itemIcon": "Water.png"
-    // }; 
-    // allItems["003"] = {
-    //     "itemName": "Milk",
-    //     "parents": [],
-    //     "isFinal": false,
-    //     "itemIcon": "Milk.png"
-    // };
-    // allItems["004"] = {
-    //     "itemName": "Bread",
-    //     "parents": [
-    //         [
-    //             "001",
-    //             "002"
-    //         ]
-    //     ],
-    //     "isFinal": false,
-    //     "itemIcon": "Bread.png"
-    // };
-    // allItems["005"] = {
-    //     "itemName": "Dough",
-    //     "parents": [
-    //       [
-    //         "001",
-    //         "003"
-    //       ]
-    //     ],
-    //     "isFinal": false,
-    //     "itemIcon": "Dough.png"
-    // }
-
-    // for (const item of Object.keys(allItems)) {
-    //     for (let i = 0; i < allItems[item]["parents"].length; i ++){
-    //         allCombos[allItems[item]["parents"][i]]= item;
-    //     }
-    // }
-
     // Load allItems from JSON file
-    const response = await fetch("/static/data/items.json");
-    const itemData = await response.json();
+    const responseItems = await fetch("/static/data/items.json");
+    const itemData = await responseItems.json();
     Object.assign(allItems, itemData); // fill allItems from the file
+
+    const responseAchievement = await fetch("/static/data/achievements.json");
+    const achievementData = await responseAchievement.json();
+    Object.assign(allAchievements, achievementData); // fill allAchievement from the file
     
     loadAllDiscovered();
     updateInventory();
-    
+    loadWorkspace();
+    loadAchievements();
+    displayAchievements();
     console.log("discovered: ", discovered);
     console.log("all items: ", allItems);
 });
