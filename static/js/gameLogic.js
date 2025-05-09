@@ -12,18 +12,21 @@ const allCombos = {};
 const allAchievements = {};
 let ingredientCounter = 0;
 
+function generateIconName(itemName){
+    return itemName.toLowerCase().replace(/ /g, '_');
+}
+
 class Ingredient {
     constructor(id, name, x, y) {
         this.id = id
         this.name = name;
         this.centerX = x;
         this.centerY = y;
-        //this.DomId = "a" + ingredientCounter++;
+        this.iconPath = generateIconName(this.name);
 
         this.item = new Image();
         this.item.alt = name;
-        this.item.src = this.image;
-        //this.item.id = this.DomId;
+        this.item.src = `/static/icons/${this.iconPath}.png`;
         this.item.width = radius * 2;
         this.item.height = radius * 2;
         this.item.style.position = "absolute";
@@ -31,7 +34,6 @@ class Ingredient {
         this.item.style.zIndex = 1100;
 
         document.body.appendChild(this.item);
-        //console.log(x);
         this.item.style.top = y + "px" ;
         this.item.style.left = x + "px";
          
@@ -121,6 +123,7 @@ class Ingredient {
         if (index != -1) {
             elementsOnScreen.splice(index, 1);
         }
+        saveWorkspace();
     }
 }
 

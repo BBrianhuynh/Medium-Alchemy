@@ -251,21 +251,6 @@
         "isFinal": false,
         "itemIcon": "armor.png"
     },
-    "019": {
-        "itemName": "armour",
-        "parents": [
-            [
-                "532",
-                "314"
-            ],
-            [
-                "532",
-                "497"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "armour.png"
-    },
     "020": {
         "itemName": "ash",
         "parents": [
@@ -1976,17 +1961,6 @@
         ],
         "isFinal": false,
         "itemIcon": "double_rainbow.png"
-    },
-    "145": {
-        "itemName": "double rainbow!",
-        "parents": [
-            [
-                "410",
-                "410"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "double_rainbow!.png"
     },
     "146": {
         "itemName": "dough",
