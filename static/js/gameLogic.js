@@ -30,7 +30,6 @@ class Ingredient {
         this.item.width = radius * 2;
         this.item.height = radius * 2;
         this.item.style.position = "absolute";
-        this.item.style.border= "1px solid black";
         this.item.style.zIndex = 1100;
 
         document.body.appendChild(this.item);
@@ -273,9 +272,9 @@ async function loadAchievements(){
         console.log(data);
         newAchievements = data;
     });
-
     unlockedAchievements = newAchievements;
     displayAchievements();
+
 }
 
 async function saveAchievements(){
@@ -314,6 +313,7 @@ function checkAchievements(newIngredient){
                 if (discoveredLength == countRequired){
                     unlockedAchievements.push(keys[allAchievementIndex]);
                     saveAchievements();
+                    showAchievementBanner(allAchievements[keys[allAchievementIndex]].name, allAchievements[keys[allAchievementIndex]].description);
                 }
             }
             else if (allAchievements[keys[allAchievementIndex]].type == "discover"){
@@ -321,6 +321,8 @@ function checkAchievements(newIngredient){
                 if (newIngredient.id == itemId){
                     unlockedAchievements.push(keys[allAchievementIndex]);
                     saveAchievements();
+                    showAchievementBanner(allAchievements[keys[allAchievementIndex]].name, allAchievements[keys[allAchievementIndex]].description);
+
                 }
             }
         }
@@ -331,6 +333,67 @@ function checkAchievements(newIngredient){
 function updateDiscoveryCounter() {
     const counter = document.getElementById("discovery-counter");
     counter.textContent = `Discovered: ${discovered.length} / ${Object.keys(allItems).length}`;
+}
+
+document.getElementById("showAchievementsBtn").onclick = () => {
+    const unlockedList = document.getElementById("unlockedAchievements");
+    const lockedList = document.getElementById("lockedAchievements");
+    unlockedList.innerHTML = "";
+    lockedList.innerHTML = "";
+
+    // Unlocked achievements
+    for (let i = 0; i < unlockedAchievements.length; i++) {
+        const unlockedAchievementId = unlockedAchievements[i];
+        const unlockedAchievement = allAchievements[unlockedAchievementId];
+        const li = document.createElement("li");    
+        const name = document.createElement("strong");
+        const desc = document.createElement("p");
+        name.textContent = unlockedAchievement.name + "🏆";    
+        desc.textContent = unlockedAchievement.description;
+        desc.style.margin = "4px 0 10px 0";    
+        li.appendChild(name);
+        li.appendChild(desc);
+
+        unlockedList.appendChild(li);
+    }
+    // Locked achievements
+    const keys = Object.keys(allAchievements);
+    for (let achievementId of keys) {
+        let locked = true;
+        if (unlockedAchievements.includes(achievementId)) {
+            locked = false;
+        }
+        if (locked) {
+            const lockedAchievement = allAchievements[achievementId];
+            const li = document.createElement("li");    
+            const name = document.createElement("strong");
+            const desc = document.createElement("p");
+            name.textContent = lockedAchievement.name;    
+            desc.textContent = lockedAchievement.description;
+            desc.style.margin = "4px 0 10px 0";    
+            li.appendChild(name);
+            li.appendChild(desc);
+
+            lockedList.appendChild(li);
+        }
+    }
+
+    document.getElementById("achievementsPopup").style.display = "flex";
+};
+
+document.querySelector(".close-btn").onclick = () => {
+    document.getElementById("achievementsPopup").style.display = "none";
+};
+
+function showAchievementBanner(achievementName, achievementDescription) {
+    const banner = document.getElementById("achievementBanner");
+    const bannerText = document.getElementById("achievementBannerText");
+    const closeBtn = document.getElementById("closeBannerBtn");
+    bannerText.innerHTML = `<strong>${achievementName} 🏆</strong><br>${achievementDescription}`;
+    banner.style.display = "block";
+    closeBtn.onclick = function () {
+        banner.style.display = "none";
+    };
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
