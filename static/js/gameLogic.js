@@ -11,6 +11,7 @@ const allItems = {};
 const allCombos = {};
 const allAchievements = {};
 let ingredientCounter = 0;
+let musicStarted = false;
 
 function generateIconName(itemName){
     return itemName.toLowerCase().replace(/ /g, '_');
@@ -93,6 +94,7 @@ class Ingredient {
 
             if (itemRight >= inventoryLeftEdge + radius / 2) {
                 that.destroy();
+                saveWorkspace();
             }
             saveWorkspace();
         }
@@ -396,6 +398,35 @@ function showAchievementBanner(achievementName, achievementDescription) {
     };
 }
 
+function startMusicOnMouseMove() {
+    if (musicStarted) return;
+    const music = document.getElementById('background-music');
+    music.loop = true;
+    music.play().then(() => {
+        musicStarted = true;
+        document.body.removeEventListener('mousemove', startMusicOnMouseMove);
+    }).catch(err => {
+        console.log("Autoplay blocked:", err);
+    });
+
+    window.addEventListener('blur', () => {
+        const music = document.getElementById('background-music');
+        if (!music.paused) {
+            music.pause();
+            console.log("Music paused on tab blur");
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        const music = document.getElementById('background-music');
+        if (musicStarted) {
+            music.play().catch(err => {
+                console.log("Autoplay blocked on focus:", err);
+            });
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     // Load allItems from JSON file
     const responseItems = await fetch("/static/data/items.json");
@@ -406,12 +437,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     const achievementData = await responseAchievement.json();
     Object.assign(allAchievements, achievementData); // fill allAchievement from the file
     
+    document.addEventListener('mousemove', startMusicOnMouseMove);
     loadAllDiscovered();
     updateInventory();
     loadWorkspace();
     loadAchievements();
     displayAchievements();
     updateDiscoveryCounter();
-    console.log("discovered: ", discovered);
     console.log("all items: ", allItems);
 });
