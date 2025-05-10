@@ -1,3 +1,11 @@
+body {
+    background-color: #e6e9ec;
+    color: #333;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
 #inventory-panel {
     position: fixed;
     right: 0;
@@ -159,4 +167,49 @@
 
 #closeBannerBtn:hover {
   color: #ddd;
+}
+
+#clear {
+  position: fixed;
+  bottom: 10px;
+  right: 220px;
+  z-index: 1000;
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#clear:hover {
+  background-color: #c82333;
+}
+
+#inventory-list {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+li {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+li:hover {
+    background-color: #d6eaff;
+}
+
+#achievementBanner {
+    background-color: #ffcb05;
+    color: #333;
+    border-radius: 10px;
+    padding: 1rem;
+    font-weight: bold;
 }
