@@ -1973,17 +1973,6 @@
         "isFinal": false,
         "itemIcon": "dough.png"
     },
-    "147": {
-        "itemName": "doughnut",
-        "parents": [
-            [
-                "146",
-                "352"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "doughnut.png"
-    },
     "148": {
         "itemName": "dragon",
         "parents": [
@@ -6990,17 +6979,6 @@
         "isFinal": false,
         "itemIcon": "sunglasses.png"
     },
-    "508": {
-        "itemName": "super nova",
-        "parents": [
-            [
-                "173",
-                "490"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "super_nova.png"
-    },
     "509": {
         "itemName": "supernova",
         "parents": [
@@ -7742,17 +7720,6 @@
         ],
         "isFinal": false,
         "itemIcon": "water_gun.png"
-    },
-    "566": {
-        "itemName": "water lilly",
-        "parents": [
-            [
-                "196",
-                "397"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "water_lilly.png"
     },
     "567": {
         "itemName": "water lily",
