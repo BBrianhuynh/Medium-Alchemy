@@ -12,6 +12,7 @@ const allCombos = {};
 const allAchievements = {};
 let ingredientCounter = 0;
 let musicStarted = false;
+var activeLetter = "";
 
 function generateIconName(itemName){
     return itemName.toLowerCase().replace(/ /g, '_');
@@ -427,6 +428,27 @@ function startMusicOnMouseMove() {
     });
 }
 
+function filterInventoryByLetter(letter, button) {
+    const items = document.querySelectorAll("#inventory-list li");
+    items.forEach(item => {
+        if (letter == activeLetter) {
+            item.style.display = "";
+        } else {
+            if (item.textContent[0] == (letter)) {
+                // Unhides an item displayed
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        }
+    });
+    if (activeLetter == letter){
+        activeLetter = "";
+    } else{
+        activeLetter = letter;
+    }
+};
+
 document.addEventListener("DOMContentLoaded", async function () {
     // Load allItems from JSON file
     const responseItems = await fetch("/static/data/items.json");
@@ -444,5 +466,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadAchievements();
     displayAchievements();
     updateDiscoveryCounter();
+
+    const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+    const letterButtons = document.getElementById("letter-buttons");
+    letters.forEach(letter => {
+        const button = document.createElement("button");
+        button.textContent = letter;
+        button.onclick = () => filterInventoryByLetter(letter);
+        letterButtons.appendChild(button);
+    });
     console.log("all items: ", allItems);
 });

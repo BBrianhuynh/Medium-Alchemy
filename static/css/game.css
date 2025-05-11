@@ -38,6 +38,20 @@ body {
     cursor: pointer;
   }
 
+  #showAchievementsBtn{
+  position: fixed;
+  bottom: 10px;
+  right: 345px;
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #FFD700;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
   .ingredient {
     z-index: 1100;
   }
@@ -62,6 +76,21 @@ body {
     overflow-y: auto;
     position: relative;
     animation: fadeIn 0.3s ease;
+  }
+
+  .logout{
+  position: fixed;
+  bottom: 10px;
+  right: 482px;
+  padding: 10px 15px;
+  font-size: 16px;
+  text-decoration: none; 
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
 
   #achievementText {
@@ -172,7 +201,7 @@ body {
 #clear {
   position: fixed;
   bottom: 10px;
-  right: 220px;
+  right: 270px;
   z-index: 1000;
   padding: 10px 15px;
   font-size: 16px;
@@ -189,11 +218,11 @@ body {
 }
 
 #inventory-list {
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color: #f4f4f4; /* same as #inventory-panel */
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
 }
 
 li {
@@ -212,4 +241,38 @@ li:hover {
     border-radius: 10px;
     padding: 1rem;
     font-weight: bold;
+}
+
+#letter-filter-panel {
+  position: fixed;
+  right: 222px;
+  top: 0;
+  width: 30px;
+  height: 100%;
+  background-color: #e0e0e0;
+  border-left: 1px solid #ccc;
+   padding: 0px 10px 0px 0;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  z-index: 999;
+  text-align: center;
+}
+
+#letter-filter-panel h2 {
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+#letter-buttons button {
+  display: block;
+  margin: 1px auto;
+  width: 20px;
+  height: 25px;
+  font-size: 14px;
+  border: none;
+  background-color: #e0e0e0;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }

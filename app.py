@@ -21,7 +21,6 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    #discoveries = db.relationship('Discovered', back_populates='user', lazy=True)
     discovered = db.Column(JSON, nullable=False, default=list)
     workspace = db.Column(JSON, nullable=False, default=list)
     achievements = db.Column(JSON, nullable=False, default=list)
@@ -157,11 +156,6 @@ def saveAchievements(username):
     db.session.commit()
 
     return jsonify({'success': True, 'message': 'Achievements list updated'})
-
-# Get info from user for gamepanel
-@app.route('/get')
-def getUserInfo():
-    return
 
 if __name__ == '__main__':
     with app.app_context():

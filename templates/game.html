@@ -6,24 +6,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width" />
   <title>MediumAlchemy</title>
-  <div>
-    <a href="{{ url_for('login') }}">Logout</a>
-    <p id="x"></p>
-    <p id="y"></p>
-  </div>
 </head>
 
 <body id="body">
+  <div>
+    <a href="{{ url_for('login') }}" class="logout">Logout</a>
+    <p id="x"></p>
+    <p id="y"></p>
+  </div>
+
   <div id="achievementBanner" class="achievement-banner" style="display: none;">
     <p id="achievementBannerText"></p>
     <button id="closeBannerBtn">X</button>
   </div>
   <audio id="background-music" loop>
-  <source src="{{ url_for('static', filename='audio/background.mp3') }}" type="audio/mpeg">
-</audio>
-  <!-- Achievements Button -->
+    <source src="{{ url_for('static', filename='audio/background.mp3') }}" type="audio/mpeg">
+  </audio>
   <button id="showAchievementsBtn">Achievements</button>
-  <!-- Popup Container -->
+  <!-- Achievement popup -->
   <div id="achievementsPopup" class="popup-overlay">
     <div class="popup-content">
       <span class="close-btn">&times;</span>
@@ -33,6 +33,10 @@
       <h2 id="achievementText">Locked Achievements</h2>
       <ul id="lockedAchievements" style="list-style-type: none; padding-left: 0;"></ul>
     </div>
+  </div>
+  <div id="letter-filter-panel">
+    <h2>Filter</h2>
+    <div id="letter-buttons"></div>
   </div>
   <div id="inventory-panel">
     <h2>Inventory</h2>
@@ -44,6 +48,7 @@
     Discovered: 0 / 0
   </div>
 </body>
+
 <script src="{{ url_for('static', filename='js/gameLogic.js') }}"></script>
 
 </html>
