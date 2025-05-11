@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #1e1e1e;
+      color: #ececec;
+      display: flex;
+      justify-content: center;
+      padding: 40px 0;
+      transition: background 0.3s, color 0.3s;
+    }
+    .panel {
+      background: #2a2a2a;
+      padding: 24px;
+      width: 360px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .tabs a {
+      color: #888;
+      text-decoration: none;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .tabs a.active,
+    .tabs a:hover {
+      color: #e91e63;
+    }
+    .tabs svg {
+      width: 16px; height: 16px;
+      fill: currentColor;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-weight: normal;
+    }
+    .setting {
+      margin-bottom: 12px;
+    }
+    .setting label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .setting select {
+      background: #1e1e1e;
+      color: #ececec;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 4px 8px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .setting input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: #e91e63;
+    }
+    .reset-btn {
+      width: 100%;
+      padding: 8px 0;
+      font-size: 14px;
+      color: #e91e63;
+      background: transparent;
+      border: 1px solid #e91e63;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .reset-btn:hover {
+      background: rgba(233,30,99,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <nav class="tabs">
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</a>
+      <a href="#" class="active"><svg viewBox="0 0 24 24"><path d="M12,8A4,4 0 1,0 16,12A4,4 0 0,0 12,8M4.93,6.93L2.51,4.51L4.93,2.09L7.34,4.51L4.93,6.93M17.07,6.93L14.66,4.51L17.07,2.09L19.49,4.51L17.07,6.93M12,2.5H12.01M12,21.5H12.01M20.5,12H21.5M2.5,12H3.5M17.07,17.07L19.49,19.49L17.07,21.91L14.66,19.49L17.07,17.07M4.93,17.07L2.51,19.49L4.93,21.91L7.34,19.49L4.93,17.07Z" /></svg>Settings</a>
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21 16.54 13.97 22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>Achievements</a>
+    </nav>
+
+    <h2>Settings</h2>
+    <form id="settings-form">
+      <div class="setting">
+        <label>
+          <select name="language">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+          Choose language
+        </label>
+      </div>
+
+      <div class="setting">
+        <label>
+          <input type="checkbox" id="mix" name="mix" />
+          Don't mix previously combined elements
+        </label>
+      </div>
+
+      <div class="setting">
+        <label>
+          <input type="checkbox" id="mark" name="mark" checked />
+          Mark final elements
+        </label>
+      </div>
+
+      <div class="setting">
+        <label>
+          <input type="checkbox" id="hideFinal" name="hideFinal" />
+          Hide final elements from the library
+        </label>
+      </div>
+
+      <div class="setting">
+        <label>
+          <input type="checkbox" id="notifications" name="notifications" />
+          Turn off notifications
+        </label>
+      </div>
+
+      <div class="setting">
+        <label>
+          <input type="checkbox" id="noSavePos" name="noSavePos" />
+          Don't save positions on the workspace
+        </label>
+      </div>
+
+      <div class="setting">
+        <label>
+          <input type="checkbox" id="hideNames" name="hideNames" />
+          Hide names on the workspace
+        </label>
+      </div>
+
+      <div class="setting">
+        <label>
+          <input type="checkbox" id="nightMode" name="nightMode" checked />
+          Night mode
+        </label>
+      </div>
+
+      <button type="button" class="reset-btn" id="resetProgress">Reset progress</button>
+    </form>
+  </div>
+
+  <script>
+    // On load, restore saved settings
+    document.addEventListener('DOMContentLoaded', () => {
+      // Checkboxes
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        const saved = localStorage.getItem(cb.id);
+        if (saved !== null) cb.checked = saved === 'true';
+        cb.addEventListener('change', () => {
+          localStorage.setItem(cb.id, cb.checked);
+          console.log(cb.id, cb.checked);
+          if (cb.id === 'nightMode') {
+            document.body.style.background = cb.checked ? '#1e1e1e' : '#fff';
+            document.body.style.color = cb.checked ? '#ececec' : '#000';
+          }
+        });
+      });
+
+      // Language dropdown
+      const lang = document.querySelector('select[name="language"]');
+      const savedLang = localStorage.getItem('language');
+      if (savedLang) lang.value = savedLang;
+      lang.addEventListener('change', () => {
+        localStorage.setItem('language', lang.value);
+        console.log('language', lang.value);
+      });
+
+      // Reset button
+      document.getElementById('resetProgress').addEventListener('click', () => {
+        if (!confirm('Are you sure you want to reset all progress?')) return;
+        localStorage.clear();
+        location.reload();
+      });
+    });
+  </script>
+</body>
+</html>
