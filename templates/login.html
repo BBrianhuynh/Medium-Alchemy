@@ -7,6 +7,15 @@
   <link rel="stylesheet" href="../static/css/login.css">
 </head>
 <body>
+        <script>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              alert("{{ message }}");
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </script>
   <div class="signin-container">
     <div class="login-box">
       <h2>Medium Alchemy</h2>
@@ -22,16 +31,5 @@
       </form>
     </div>
   </div>
-  <!--
-      <script>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              alert("{{ message }}");
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-      </script>
-    -->
 </body>
 </html>

@@ -81,7 +81,12 @@ def leaderboard():
 # Get leaderboard records
 @app.route('/getLeaderboardRecords')
 def getLeaderboardRecords():
-    return
+    leaderboardValues = {}
+    users = User.query.all()
+    for user in users:
+        leaderboardValues[user.username] = len(user.discovered)
+    leaderboardValues = sorted(leaderboardValues.items(), key = lambda item:item[1])
+    return jsonify(leaderboardValues)
 
 # Game page
 @app.route('/game/<username>')

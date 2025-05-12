@@ -63,8 +63,37 @@ body {
 .register-container .signin-btn {
     background: #6c757d;
     color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .register-container .signin-btn:hover {
     background: #5a6268;
+}
+
+.back-arrow {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: #6c757d;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.back-arrow:hover {
+    background: #5a6268;
+}
+
+.register-container {
+    position: relative;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
 }

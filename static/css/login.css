@@ -62,6 +62,7 @@ body {
 
 .signin-container .create-btn {
     background: #6c757d;
+    width:95%;
     color: white;
 }
 

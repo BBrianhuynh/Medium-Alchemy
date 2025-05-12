@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign</title>
   <link rel="stylesheet" href="../static/css/register.css">
 </head>
+
 <body>
+  <script>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    alert("{{ message }}");
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </script>
   <div class="register-container">
+      <a href="/" class="back-arrow">&#8592; Return</a>
     <h2>Create Account</h2>
     <form action="/register" method="POST">
       <label for="username">Username</label>
       <input type="text" placeholder="Username" name="username" id="username" required>
-      
+
       <label for="username">Password</label>
       <input type="password" placeholder="Password" name="password" id="password" required>
-      
+
       <label for="retype_password">Retype Password</label>
-      <input type="password" placeholder="Retype_password" name="retype_password" required> 
-      
+      <input type="password" placeholder="Retype_password" name="retype_password" required>
+
       <button type="submit" class="btn">Register</button>
     </form>
-    <a href="/" class="signin-btn">Sign In</a>
   </div>
-  <!--
-  <script>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-          alert("{{ message }}");
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-  </script>
-  -->
 </body>
+
 </html>

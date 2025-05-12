@@ -22,6 +22,7 @@
 
   <button id="showAchievementsBtn">Achievements</button>
   <button id="showSettingsBtn">Settings</button>
+  <button id="showLeaderboardBtn">Leaderboard</button>
   
   <!-- Achievement popup -->
   <div id="achievementsPopup" class="popup-overlay">
@@ -29,43 +30,53 @@
       <span class="close-btn-achievements">&times;</span>
       <h2 id="achievementText">Unlocked Achievements</h2>
       <ul id="unlockedAchievements" style="list-style-type: none; padding-left: 0;"></ul>
-    </ul>
-    <h2 id="achievementText">Locked Achievements</h2>
-    <ul id="lockedAchievements" style="list-style-type: none; padding-left: 0;"></ul>
+      <h2 id="achievementText">Locked Achievements</h2>
+      <ul id="lockedAchievements" style="list-style-type: none; padding-left: 0;"></ul>
+    </div>
   </div>
-</div>
 
-<!-- Settings popup -->
-<div id="settingsPopup" class="popup-overlay">
-  <div class="popup-content">
-    <span class="close-btn-settings">&times;</span>
-    <h2 id="settingsText">Settings</h2>
-    <ul id="settingsList" style="list-style-type: none; padding-left: 0;"></ul>
+  <!-- Settings popup -->
+  <div id="settingsPopup" class="popup-overlay">
+    <div class="popup-content">
+      <span class="close-btn-settings">&times;</span>
+      <h2 id="settingsText">Settings</h2>
+      <ul id="settingsList" style="list-style-type: none; padding-left: 0;"></ul>
+    </div>
   </div>
-</div>
 
-<div id="letter-filter-panel">
-  <h2>Filter</h2>
-  <div id="letter-buttons"></div>
-</div>
+  <div id="leaderboardPopup" class="popup-overlay">
+    <div class="popup-content">
+      <span class="close-btn-leaderboard">&times;</span>
+      <h2 id="leaderboardText">Leaderboard</h2>
+      <table id="leaderboardList" ></table>
+    </div>
+  </div>
 
-<div id="inventory-panel">
-  <h2>Inventory</h2>
-  <ul id="inventory-list"></ul>
-</div>
 
-<button id="clear" onclick="clearScreen()">Clear</button>
-<div id="discovery-counter" style="position: fixed; bottom: 10px; left: 10px; font-family: sans-serif; font-size: 30px;">Discovered: 0 / 0</div>
+  <div id="letter-filter-panel">
+    <h2 style="text-align: center">Filter</h2>
+    <div id="letter-buttons"></div>
+  </div>
+
+  <div id="inventory-panel">
+    <h2>Inventory</h2>
+    <ul id="inventory-list"></ul>
+  </div>
+
+  <button id="clear" onclick="clearScreen()">Clear</button>
+  <div id="discovery-counter" style="position: fixed; bottom: 10px; left: 10px; font-family: sans-serif; font-size: 30px;">Discovered: 0 / 0</div>
 </body>
+
 <!-- All Audio Sources -->
 <audio id="background-music" loop> <source src="{{ url_for('static', filename='audio/background.mp3') }}" type="audio/mpeg" preload="auto"> </audio>
 <audio id="combined-sound"> <source src="{{ url_for('static', filename='audio/combined.mp3') }}" type="audio/mpeg" preload="auto"> </audio>
-<audio id="discovered-sopund"> <source src="{{ url_for('static', filename='audio/discovered.mp3') }}" type="audio/mpeg" preload="auto"> </audio>
+<audio id="discovered-sound"> <source src="{{ url_for('static', filename='audio/discovered.mp3') }}" type="audio/mpeg" preload="auto"> </audio>
 <audio id="drop-sound"> <source src="{{ url_for('static', filename='audio/drop.mp3') }}" type="audio/mpeg" preload="auto"> </audio>
 <audio id="pickup-sound"> <source src="{{ url_for('static', filename='audio/pickup.mp3') }}" type="audio/mpeg" preload="auto"> </audio>
 <audio id="discard-sound"> <source src="{{ url_for('static', filename='audio/discard.mp3') }}" type="audio/mpeg" preload="auto"> </audio>
 
 
 <script src="{{ url_for('static', filename='js/gameLogic.js') }}"></script>
+<script src="{{ url_for('static', filename='js/leaderboard.js') }}"></script>
 
 </html>

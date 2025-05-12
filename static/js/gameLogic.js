@@ -15,12 +15,6 @@ let musicStarted = false;
 var activeLetter = "";
 let settings = {};
 
-var dropSound = document.getElementById('drop-sound');
-var combineSound = document.getElementById('combined-sound');
-var pickupSound = document.getElementById('pickup-sound');
-var discoveredSound = document.getElementById('discovered-sound');
-
-
 function generateIconName(itemName){
     return itemName.toLowerCase().replace(/ /g, '_');
 }
@@ -71,6 +65,7 @@ class Ingredient {
 
             document.onmouseup = stopDrag;
             document.onmousemove = dragElement;
+            if (!settings['Mute sound']) playSound('/static/audio/pickup.mp3');
         }
 
         function dragElement(e) {
@@ -85,9 +80,6 @@ class Ingredient {
 
             that.centerY = parseInt(that.item.style.top.slice(0,-2));
             that.centerX = parseInt(that.item.style.left.slice(0,-2));
-
-            document.getElementById("x").innerHTML = "x: " + that.centerX;
-            document.getElementById("y").innerHTML = "y: " + that.centerY;
         }
 
         function stopDrag() {
@@ -102,10 +94,12 @@ class Ingredient {
 
             if (itemRight >= inventoryLeftEdge + radius / 2) {
                 that.destroy();
+                if (!settings["Mute sound"]) playSound('/static/audio/discard.mp3');
                 saveWorkspace();
+                return
             }
             saveWorkspace();
-            drop.play();
+            if (!settings["Mute sound"]) playSound('/static/audio/drop.mp3');
         }
 
         function checkCollision(x, y) {
@@ -145,11 +139,12 @@ function updateInventory(e) {
     discovered.forEach(itemId => {
         const itemData = allItems[itemId];
         if (!itemData) return; // item is missing from all items
+        if (settings["Hide final elements from library"] && itemData.isFinal) return; // skip final items if setting toggled
 
-        const list = document.createElement("li");
-        list.textContent = itemData.itemName;
-        list.style.cursor = "pointer";
-        list.onmousedown = (e) => {
+        const listElem = document.createElement("li");
+        listElem.textContent = itemData.itemName;
+        listElem.style.cursor = "pointer";
+        listElem.onmousedown = (e) => {
             // Limiting max items on screen, otherwise last in first out
             if (elementsOnScreen.length >= MAX_ELEMS_ON_SCREEN) {
                 const first = elementsOnScreen.splice(0, 1)[0];
@@ -160,7 +155,12 @@ function updateInventory(e) {
             created.startDragFromInventory(e);
         };
 
-        inventoryList.appendChild(list);
+        if (settings["Night mode"]){
+            listElem.style.backgroundColor = "#201a24"; 
+        } else {
+            listElem.style.backgroundColor = "#ffffff";
+        }
+        inventoryList.appendChild(listElem);
     });
 }
 
@@ -191,9 +191,9 @@ async function combine(elementOne, elementTwo) {
             discovered.push(resultElemId);
             await addToDiscovered(discovered);
             // checkAchievements(newIngredient);
-            discoveredSound.play();
+            if (!settings["Mute sound"]) playSound('/static/audio/discovered.mp3');
         }else{
-            sound.play();
+            if (!settings["Mute sound"]) playSound('/static/audio/combined.mp3');
         }
         const newIngredient = new Ingredient(resultElemId, allItems[resultElemId].itemName, elementTwo.x, elementTwo.y);
         if(newElement) checkAchievements(newIngredient);
@@ -204,6 +204,11 @@ async function combine(elementOne, elementTwo) {
         saveWorkspace();
         return resultElemId;
     }
+}
+
+function playSound(path){
+    const sound = new Audio(path);
+    sound.play();
 }
 
 async function addToDiscovered(discovered){
@@ -427,67 +432,72 @@ document.querySelector(".close-btn-achievements").onclick = () => {
     document.getElementById("achievementsPopup").style.display = "none";
 };
 document.querySelector(".close-btn-settings").onclick = () => {
-    const nightModeElements = ["body", "inventory-panel"];
-    const nightModeColors = ["#171319", "#201a24", "#5c4b65"];
-    const lightModeColors = [""];
-    const wasDark = settings["Night mode"];
+    const nightModeElements = ["body", "inventory-panel", "inventory-list", "letter-filter-panel"];
+    const nightModeColors = ["#171319", "#201a24", "#201a24", "#201a24"];
+    const lightModeColors = ["#e6e9ec", "#e6e9ec", "#ffffff", "#e0e0e0"];
 
     settings["Night mode"] = document.getElementById("Night mode").checked;
     settings["Mute music"] = document.getElementById("Mute music").checked;
+    settings["Mute sound"] = document.getElementById("Mute sound").checked;
     settings["Hide final elements from library"] = document.getElementById("Hide final elements from library").checked;
     settings["Turn off notifications"] = document.getElementById("Turn off notifications").checked;
 
-    if(settings["Night mode"] && ! wasDark ){ //if night mode was switched on 
+    if(settings["Night mode"]){ //if night mode was switched on 
         for(let i = 0; i < nightModeElements.length; i ++) {
             let item = document.getElementById(nightModeElements[i]);
             item.style.backgroundColor = nightModeColors[i];
             item.classList.add("text-nightmode");
         }
-        document.getElementById("discovery-counter").color = nightModeColors[2];
+
+        const letterButtonList = document.getElementById("letter-buttons");
+        const letterButtons = letterButtonList.getElementsByTagName("button");
+        for(let i = 0; i < letterButtons.length; i++){
+            letterButtons[i].style.backgroundColor = "#201a24";
+            letterButtons[i].style.color = "#8b7895";
+        }
     }
-     else if (!settings["Night mode"] && wasDark){
+     else if (!settings["Night mode"]){
         for(let i = 0; i < nightModeElements.length; i ++) {
             let item = document.getElementById(nightModeElements[i]);
             item.style.backgroundColor = lightModeColors[i];
-            item.classList.remove("counter-nightmode");
+            item.classList.remove("text-nightmode");
+        }
+
+        const letterButtonList = document.getElementById("letter-buttons");
+        const letterButtons = letterButtonList.getElementsByTagName("button");
+        for(let i = 0; i < letterButtons.length; i++){
+            letterButtons[i].style.backgroundColor = "#e0e0e0";
+            letterButtons[i].style.color = "#000000";
         }
     }
 
-    if(settings["Mute music"]){
-        
+    if (settings["Mute music"]) {
+        const music = document.getElementById('background-music');
+        music.muted = true;
     } else {
-
+        const music = document.getElementById('background-music');
+        music.muted = false;
     }
-
-    if(settings["Hide final elements from library"]){
-        
-    } else {
-
-    }
-
-    if(settings["Turn off notifications"]){
-        
-    } else {
-        
-    }
+    updateInventory();
 
     document.getElementById("settingsPopup").style.display = "none";
 };
 
 function showAchievementBanner(achievementName, achievementDescription) {
-    const banner = document.getElementById("achievementBanner");
-    const bannerText = document.getElementById("achievementBannerText");
-    const closeBtn = document.getElementById("closeBannerBtn");
-    bannerText.innerHTML = `<strong>${achievementName} 🏆</strong><br>${achievementDescription}`;
-    banner.style.display = "block";
-    closeBtn.onclick = function () {
-        banner.style.display = "none";
-    };
+    if(!settings["Turn off notifications"]){
+        const banner = document.getElementById("achievementBanner");
+        const bannerText = document.getElementById("achievementBannerText");
+        const closeBtn = document.getElementById("closeBannerBtn");
+        bannerText.innerHTML = `<strong>${achievementName} 🏆</strong><br>${achievementDescription}`;
+        banner.style.display = "block";
+        closeBtn.onclick = function () {
+            banner.style.display = "none";
+        };
+    }
 }
 
 function startMusicOnMouseMove() {
-    return;
-    if (musicStarted) return;
+    if (musicStarted && settings["Mute music"]) return;
     const music = document.getElementById('background-music');
     music.loop = true;
     music.play().then(() => {
@@ -549,6 +559,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     settings = {
         "Night mode":false,
         "Mute music":false,
+        "Mute sound": false,
         "Hide final elements from library":false,
         "Turn off notifications":false
     }
@@ -560,7 +571,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadAchievements();
     displayAchievements();
     updateDiscoveryCounter();
-
     const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
     const letterButtons = document.getElementById("letter-buttons");
     letters.forEach(letter => {

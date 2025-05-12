@@ -251,21 +251,6 @@
         "isFinal": false,
         "itemIcon": "armor.png"
     },
-    "019": {
-        "itemName": "armour",
-        "parents": [
-            [
-                "532",
-                "314"
-            ],
-            [
-                "532",
-                "497"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "armour.png"
-    },
     "020": {
         "itemName": "ash",
         "parents": [
@@ -1977,17 +1962,6 @@
         "isFinal": false,
         "itemIcon": "double_rainbow.png"
     },
-    "145": {
-        "itemName": "double rainbow!",
-        "parents": [
-            [
-                "410",
-                "410"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "double_rainbow!.png"
-    },
     "146": {
         "itemName": "dough",
         "parents": [
@@ -1998,17 +1972,6 @@
         ],
         "isFinal": false,
         "itemIcon": "dough.png"
-    },
-    "147": {
-        "itemName": "doughnut",
-        "parents": [
-            [
-                "146",
-                "352"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "doughnut.png"
     },
     "148": {
         "itemName": "dragon",
@@ -7016,17 +6979,6 @@
         "isFinal": false,
         "itemIcon": "sunglasses.png"
     },
-    "508": {
-        "itemName": "super nova",
-        "parents": [
-            [
-                "173",
-                "490"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "super_nova.png"
-    },
     "509": {
         "itemName": "supernova",
         "parents": [
@@ -7754,12 +7706,7 @@
     },
     "564": {
         "itemName": "water",
-        "parents": [
-            [
-                "183",
-                "264"
-            ]
-        ],
+        "parents": [],
         "isFinal": false,
         "itemIcon": "water.png"
     },
@@ -7773,17 +7720,6 @@
         ],
         "isFinal": false,
         "itemIcon": "water_gun.png"
-    },
-    "566": {
-        "itemName": "water lilly",
-        "parents": [
-            [
-                "196",
-                "397"
-            ]
-        ],
-        "isFinal": false,
-        "itemIcon": "water_lilly.png"
     },
     "567": {
         "itemName": "water lily",

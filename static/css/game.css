@@ -6,17 +6,20 @@ body {
     padding: 0;
 }
 
-
 .body-nightmode {
     background-color: #171319;
 }
 
 .inventory-nightmode {
-    background-color: #201a24;
+  background-color: #201a24 !important;
 }
 
 .text-nightmode {
-    color: #5c4b65;
+    color: #8b7895;
+}
+
+.text-lightmode {
+    color: #333;
 }
 
 .letter-filter-panel-nightmode {
@@ -63,6 +66,20 @@ body {
     padding: 10px 15px;
     font-size: 16px;
     background-color: #FFD700;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#showLeaderboardBtn{
+    position: fixed;
+    bottom: 10px;
+    right: 665px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #5fe277;
     color: white;
     border: none;
     border-radius: 8px;
@@ -141,7 +158,17 @@ body {
     margin-bottom: 8px;
   }
   
+  
+
   .close-btn-achievements {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+  .close-btn-leaderboard{
     position: absolute;
     top: 10px;
     right: 15px;
@@ -287,11 +314,11 @@ li:hover {
   position: fixed;
   right: 222px;
   top: 0;
-  width: 30px;
+  width: 50px;
   height: 100%;
   background-color: #e0e0e0;
   border-left: 1px solid #ccc;
-   padding: 0px 10px 0px 0;
+  padding: 0px 10px 10px 0;
   box-shadow: -2px 0 5px rgba(0,0,0,0.1);
   overflow-y: auto;
   z-index: 999;
