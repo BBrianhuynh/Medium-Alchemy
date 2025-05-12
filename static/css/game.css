@@ -6,55 +6,87 @@ body {
     padding: 0;
 }
 
+
+.body-nightmode {
+    background-color: #171319;
+}
+
+.inventory-nightmode {
+    background-color: #201a24;
+}
+
+.text-nightmode {
+    color: #5c4b65;
+}
+
+.letter-filter-panel-nightmode {
+    background-color: #352c3b
+}
+
 #inventory-panel {
     position: fixed;
     right: 0;
     top: 0;
     width: 200px;
     height: 100%;
-    background-color: #f4f4f4;
+    
     border-left: 2px solid #ccc;
     padding: 10px;
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
     overflow-y: auto;
     z-index: 1000;
-  }
+}
   
-  #inventory-panel h2 {
+#inventory-panel h2 {
+
     margin-top: 0;
     font-size: 1.2em;
     text-align: center;
-  }
-  
-  #inventory-list {
+}
+
+#inventory-list {
     list-style: none;
     padding-left: 0;
     font-size: 0.9em;
-  }
+}
   
-  #inventory-list li {
+#inventory-list li {
     padding: 5px;
     border-bottom: 1px solid #ddd;
     cursor: pointer;
-  }
+}
 
-  #showAchievementsBtn{
-  position: fixed;
-  bottom: 10px;
-  right: 345px;
-  padding: 10px 15px;
-  font-size: 16px;
-  background-color: #FFD700;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
+#showAchievementsBtn{
+    position: fixed;
+    bottom: 10px;
+    right: 345px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #FFD700;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 
-  .ingredient {
+#showSettingsBtn{
+    position: fixed;
+    bottom: 10px;
+    right: 570px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #6f6f6f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.ingredient {
     z-index: 1100;
-  }
+}
 
   .popup-overlay {
     display: none;
@@ -79,18 +111,18 @@ body {
   }
 
   .logout{
-  position: fixed;
-  bottom: 10px;
-  right: 482px;
-  padding: 10px 15px;
-  font-size: 16px;
-  text-decoration: none; 
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: fixed;
+    bottom: 10px;
+    right: 482px;
+    padding: 10px 15px;
+    font-size: 16px;
+    text-decoration: none; 
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
 
   #achievementText {
@@ -109,7 +141,15 @@ body {
     margin-bottom: 8px;
   }
   
-  .close-btn {
+  .close-btn-achievements {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+  .close-btn-settings {
     position: absolute;
     top: 10px;
     right: 15px;

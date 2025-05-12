@@ -13,6 +13,13 @@ const allAchievements = {};
 let ingredientCounter = 0;
 let musicStarted = false;
 var activeLetter = "";
+let settings = {};
+
+var dropSound = document.getElementById('drop-sound');
+var combineSound = document.getElementById('combined-sound');
+var pickupSound = document.getElementById('pickup-sound');
+var discoveredSound = document.getElementById('discovered-sound');
+
 
 function generateIconName(itemName){
     return itemName.toLowerCase().replace(/ /g, '_');
@@ -27,7 +34,7 @@ class Ingredient {
         this.iconPath = generateIconName(this.name);
 
         this.item = new Image();
-        this.item.alt = name;
+        this.item.title = name;
         this.item.src = `/static/icons/${this.iconPath}.png`;
         this.item.width = radius * 2;
         this.item.height = radius * 2;
@@ -98,6 +105,7 @@ class Ingredient {
                 saveWorkspace();
             }
             saveWorkspace();
+            drop.play();
         }
 
         function checkCollision(x, y) {
@@ -183,6 +191,9 @@ async function combine(elementOne, elementTwo) {
             discovered.push(resultElemId);
             await addToDiscovered(discovered);
             // checkAchievements(newIngredient);
+            discoveredSound.play();
+        }else{
+            sound.play();
         }
         const newIngredient = new Ingredient(resultElemId, allItems[resultElemId].itemName, elementTwo.x, elementTwo.y);
         if(newElement) checkAchievements(newIngredient);
@@ -384,8 +395,83 @@ document.getElementById("showAchievementsBtn").onclick = () => {
     document.getElementById("achievementsPopup").style.display = "flex";
 };
 
-document.querySelector(".close-btn").onclick = () => {
+document.getElementById("showSettingsBtn").onclick = () => {
+    const settingsList = document.getElementById("settingsList");
+    settingsList.innerHTML = "";
+
+    settingNames = Object.keys(settings);
+    for (let i = 0; i < settingNames.length; i++) {
+        const settingName = settingNames[i];
+        const li = document.createElement("li");    
+        const name = document.createElement("strong");
+        const checkbox = document.createElement("input")
+
+        checkbox.type = "checkbox";
+        checkbox.id = settingName;
+        name.textContent = settingName;
+        name.style.margin = "6px 0 10px 0"
+
+        if (settings[settingName]) {
+            checkbox.checked = true
+        }
+
+        li.appendChild(checkbox);
+        li.appendChild(name);
+        settingsList.appendChild(li);
+    }
+
+    document.getElementById("settingsPopup").style.display = "flex";
+};
+
+document.querySelector(".close-btn-achievements").onclick = () => {
     document.getElementById("achievementsPopup").style.display = "none";
+};
+document.querySelector(".close-btn-settings").onclick = () => {
+    const nightModeElements = ["body", "inventory-panel"];
+    const nightModeColors = ["#171319", "#201a24", "#5c4b65"];
+    const lightModeColors = [""];
+    const wasDark = settings["Night mode"];
+
+    settings["Night mode"] = document.getElementById("Night mode").checked;
+    settings["Mute music"] = document.getElementById("Mute music").checked;
+    settings["Hide final elements from library"] = document.getElementById("Hide final elements from library").checked;
+    settings["Turn off notifications"] = document.getElementById("Turn off notifications").checked;
+
+    if(settings["Night mode"] && ! wasDark ){ //if night mode was switched on 
+        for(let i = 0; i < nightModeElements.length; i ++) {
+            let item = document.getElementById(nightModeElements[i]);
+            item.style.backgroundColor = nightModeColors[i];
+            item.classList.add("text-nightmode");
+        }
+        document.getElementById("discovery-counter").color = nightModeColors[2];
+    }
+     else if (!settings["Night mode"] && wasDark){
+        for(let i = 0; i < nightModeElements.length; i ++) {
+            let item = document.getElementById(nightModeElements[i]);
+            item.style.backgroundColor = lightModeColors[i];
+            item.classList.remove("counter-nightmode");
+        }
+    }
+
+    if(settings["Mute music"]){
+        
+    } else {
+
+    }
+
+    if(settings["Hide final elements from library"]){
+        
+    } else {
+
+    }
+
+    if(settings["Turn off notifications"]){
+        
+    } else {
+        
+    }
+
+    document.getElementById("settingsPopup").style.display = "none";
 };
 
 function showAchievementBanner(achievementName, achievementDescription) {
@@ -400,6 +486,7 @@ function showAchievementBanner(achievementName, achievementDescription) {
 }
 
 function startMusicOnMouseMove() {
+    return;
     if (musicStarted) return;
     const music = document.getElementById('background-music');
     music.loop = true;
@@ -425,7 +512,7 @@ function startMusicOnMouseMove() {
                 console.log("Autoplay blocked on focus:", err);
             });
         }
-    });
+    })
 }
 
 function filterInventoryByLetter(letter, button) {
@@ -458,6 +545,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     const responseAchievement = await fetch("/static/data/achievements.json");
     const achievementData = await responseAchievement.json();
     Object.assign(allAchievements, achievementData); // fill allAchievement from the file
+
+    settings = {
+        "Night mode":false,
+        "Mute music":false,
+        "Hide final elements from library":false,
+        "Turn off notifications":false
+    }
     
     document.addEventListener('mousemove', startMusicOnMouseMove);
     loadAllDiscovered();
@@ -475,5 +569,4 @@ document.addEventListener("DOMContentLoaded", async function () {
         button.onclick = () => filterInventoryByLetter(letter);
         letterButtons.appendChild(button);
     });
-    console.log("all items: ", allItems);
 });
