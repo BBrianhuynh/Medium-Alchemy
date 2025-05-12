@@ -1,7 +1,7 @@
 const pathParts = window.location.pathname.split('/');
 const username = pathParts[2];
 const radius = 50;
-const elementsOnScreen = [];
+let elementsOnScreen = [];
 const inventoryLeftEdge = document.getElementById('inventory-list').getBoundingClientRect().left;
 const MAX_ELEMS_ON_SCREEN = 7;
 
@@ -35,7 +35,22 @@ class Ingredient {
         this.item.style.position = "absolute";
         this.item.style.zIndex = 1100;
 
+        this.text = document.createElement("div");
+        this.text.innerText = name;
+        this.text.style.position = "absolute";
+        this.text.style.top = (y + radius * 2 + 2) + "px";
+        this.text.style.left = x + "px";
+        this.text.style.fontSize = "12px";
+        this.text.style.textAlign = "center";
+        this.text.style.width = (radius * 2) + "px";
+        if(settings["Night mode"]){
+            this.text.style.color = "#8b7895";
+        } else {
+            this.text.style.color = "#333";
+        }
+
         document.body.appendChild(this.item);
+        document.body.appendChild(this.text);
         this.item.style.top = y + "px" ;
         this.item.style.left = x + "px";
          
@@ -80,6 +95,9 @@ class Ingredient {
 
             that.centerY = parseInt(that.item.style.top.slice(0,-2));
             that.centerX = parseInt(that.item.style.left.slice(0,-2));
+
+            that.text.style.top = (that.centerY + radius * 2 + 2) + "px";
+            that.text.style.left = that.centerX + "px";
         }
 
         function stopDrag() {
@@ -95,11 +113,11 @@ class Ingredient {
             if (itemRight >= inventoryLeftEdge + radius / 2) {
                 that.destroy();
                 if (!settings["Mute sound"]) playSound('/static/audio/discard.mp3');
-                saveWorkspace();
-                return
+                return;
+            }else{
+                if (!settings["Mute sound"]) playSound('/static/audio/drop.mp3');
             }
-            saveWorkspace();
-            if (!settings["Mute sound"]) playSound('/static/audio/drop.mp3');
+            (async () => { await saveWorkspace(); })();
         }
 
         function checkCollision(x, y) {
@@ -122,12 +140,13 @@ class Ingredient {
     destroy() {
         if (this.item && this.item.parentNode == document.body) {
             document.body.removeChild(this.item);
+            document.body.removeChild(this.text);
         }
         const index = elementsOnScreen.indexOf(this);
         if (index != -1) {
             elementsOnScreen.splice(index, 1);
         }
-        saveWorkspace();
+        (async () => { await saveWorkspace(); })();
     }
 }
 
@@ -201,7 +220,7 @@ async function combine(elementOne, elementTwo) {
         elementTwo.destroy();
         updateDiscoveryCounter();
         updateInventory();
-        saveWorkspace();
+        await saveWorkspace();
         return resultElemId;
     }
 }
@@ -256,7 +275,6 @@ async function loadWorkspace(){
             const centerY = newWorkspace[i][2];
             const itemName = allItems[id].itemName;
             const newIng = new Ingredient(id, itemName, centerX, centerY);
-            elementsOnScreen.push(newIng);
         }
     });
 }
@@ -313,7 +331,7 @@ function clearScreen() {
     while (elementsOnScreen.length > 0) {
         elementsOnScreen[0].destroy();
     }
-    saveWorkspace();
+    (async () => { await saveWorkspace(); })();
 }
 
 function displayAchievements(){
@@ -460,8 +478,11 @@ function implementSettings(){
             letterButtons[i].style.backgroundColor = "#201a24";
             letterButtons[i].style.color = "#8b7895";
         }
-    }
-     else if (!settings["Night mode"]){
+
+        for(let i = 0; i < elementsOnScreen.length; i++){
+            elementsOnScreen[i].text.style.color = "#8b7895"
+        }
+    } else if (!settings["Night mode"]){
         for(let i = 0; i < nightModeElements.length; i ++) {
             let item = document.getElementById(nightModeElements[i]);
             item.style.backgroundColor = lightModeColors[i];
@@ -473,6 +494,10 @@ function implementSettings(){
         for(let i = 0; i < letterButtons.length; i++){
             letterButtons[i].style.backgroundColor = "#e0e0e0";
             letterButtons[i].style.color = "#000000";
+        }
+
+        for(let i = 0; i < elementsOnScreen.length; i++){
+            elementsOnScreen[i].text.style.color = "#000000"
         }
     }
 
@@ -580,6 +605,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     const responseAchievement = await fetch("/static/data/achievements.json");
     const achievementData = await responseAchievement.json();
     Object.assign(allAchievements, achievementData); // fill allAchievement from the file
+
+    elementsOnScreen = [];
 
     settings = {
         "Night mode": false,
