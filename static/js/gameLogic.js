@@ -230,7 +230,7 @@ async function getDiscoveredData(){
     await fetch(`/game/${username}/getDiscoveredData`)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+        console.log("getDiscoveredData:", data);
         newDiscovered = data; // discovered will just be a list of ids. data enriching can be done by crossref with allitems
     });
     return newDiscovered;
@@ -247,7 +247,7 @@ async function loadWorkspace(){
     await fetch(`/game/${username}/getWorkspace`)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+        console.log("getWorkspace:", data);
         newWorkspace = data;
 
         for(let i = 0; i < newWorkspace.length; i++){
@@ -432,15 +432,20 @@ document.querySelector(".close-btn-achievements").onclick = () => {
     document.getElementById("achievementsPopup").style.display = "none";
 };
 document.querySelector(".close-btn-settings").onclick = () => {
-    const nightModeElements = ["body", "inventory-panel", "inventory-list", "letter-filter-panel"];
-    const nightModeColors = ["#171319", "#201a24", "#201a24", "#201a24"];
-    const lightModeColors = ["#e6e9ec", "#e6e9ec", "#ffffff", "#e0e0e0"];
-
     settings["Night mode"] = document.getElementById("Night mode").checked;
     settings["Mute music"] = document.getElementById("Mute music").checked;
     settings["Mute sound"] = document.getElementById("Mute sound").checked;
     settings["Hide final elements from library"] = document.getElementById("Hide final elements from library").checked;
     settings["Turn off notifications"] = document.getElementById("Turn off notifications").checked;
+    implementSettings();
+    saveSettings();
+    document.getElementById("settingsPopup").style.display = "none";
+};
+
+function implementSettings(){
+    const nightModeElements = ["body", "inventory-panel", "inventory-list", "letter-filter-panel"];
+    const nightModeColors = ["#171319", "#201a24", "#201a24", "#201a24"];
+    const lightModeColors = ["#e6e9ec", "#e6e9ec", "#ffffff", "#e0e0e0"];
 
     if(settings["Night mode"]){ //if night mode was switched on 
         for(let i = 0; i < nightModeElements.length; i ++) {
@@ -479,9 +484,29 @@ document.querySelector(".close-btn-settings").onclick = () => {
         music.muted = false;
     }
     updateInventory();
+}
 
-    document.getElementById("settingsPopup").style.display = "none";
-};
+async function saveSettings(){
+    const data = { settings: settings }
+    const request = await fetch(`/game/${username}/saveSettings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    const response = await request.json();
+    console.log("Response saveSettings: ", response)
+}
+
+async function retrieveSettings(){
+    let newSettings = "";
+    await fetch(`/game/${username}/getSettings`)
+    .then(response => response.json())
+    .then(data => {
+        console.log("retrieveSettings: ", data);
+        newSettings = data; // discovered will just be a list of ids. data enriching can be done by crossref with allitems
+    });
+    settings = newSettings;
+}
 
 function showAchievementBanner(achievementName, achievementDescription) {
     if(!settings["Turn off notifications"]){
@@ -557,11 +582,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     Object.assign(allAchievements, achievementData); // fill allAchievement from the file
 
     settings = {
-        "Night mode":false,
-        "Mute music":false,
+        "Night mode": false,
+        "Mute music": false,
         "Mute sound": false,
-        "Hide final elements from library":false,
-        "Turn off notifications":false
+        "Hide final elements from library": false,
+        "Turn off notifications": false
     }
     
     document.addEventListener('mousemove', startMusicOnMouseMove);
@@ -579,4 +604,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         button.onclick = () => filterInventoryByLetter(letter);
         letterButtons.appendChild(button);
     });
+    
+    await retrieveSettings();
+    implementSettings();
 });

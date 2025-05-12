@@ -77,8 +77,8 @@ body {
     position: absolute;
     top: 1rem;
     left: 1rem;
-    background: #6c757d;
-    color: white;
+    background: white;
+    color: black;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     text-decoration: none;

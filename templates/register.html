@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign</title>
   <link rel="stylesheet" href="../static/css/register.css">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
 <body>
@@ -19,7 +20,7 @@
     {% endwith %}
   </script>
   <div class="register-container">
-      <a href="/" class="back-arrow">&#8592; Return</a>
+      <a href="/" class="back-arrow">&#8592;</a>
     <h2>Create Account</h2>
     <form action="/register" method="POST">
       <label for="username">Username</label>
