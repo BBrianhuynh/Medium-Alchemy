@@ -184,44 +184,46 @@ function updateInventory(e) {
 }
 
 async function combine(elementOne, elementTwo) {
-    parentIds = [elementOne.id, elementTwo.id]
+    parentIds = [elementOne.id, elementTwo.id];
     comboExists = false;
-    resultElemId = "";
+    resultElemIds = [];
     const keys = Object.keys(allItems);
     for (const allItemsIndex in keys) {
-        resItemId = keys[allItemsIndex]
+        resItemId = keys[allItemsIndex];
         currParents = allItems[resItemId].parents;
         if(currParents.length > 0) {
             for(let i = 0; i < currParents.length; i++){
                 if(currParents[i].length < 2) continue;
                 if((currParents[i][0] == parentIds[0] && currParents[i][1] == parentIds[1]) || (currParents[i][1] == parentIds[0] && currParents[i][0] == parentIds[1])){
                     comboExists = true;
-                    resultElemId = resItemId;
-                    break;
+                    resultElemIds.push(resItemId);
                 }
             }
         }
-        if(comboExists) break;
     }
 
     if(comboExists){
-        let newElement = !discovered.includes(resultElemId)
-        if(newElement) {
-            discovered.push(resultElemId);
-            await addToDiscovered(discovered);
-            // checkAchievements(newIngredient);
-            if (!settings["Mute sound"]) playSound('/static/audio/discovered.mp3');
-        }else{
-            if (!settings["Mute sound"]) playSound('/static/audio/combined.mp3');
+        for(let i = 0; i < resultElemIds.length; i++){
+            let newItemId = resultElemIds[i];
+            let newElement = !discovered.includes(newItemId)
+            if(newElement) {
+                discovered.push(newItemId);
+                await addToDiscovered(discovered);
+                // checkAchievements(newIngredient);
+                if (!settings["Mute sound"]) playSound('/static/audio/discovered.mp3');
+            } else {
+                if (!settings["Mute sound"]) playSound('/static/audio/combined.mp3');
+            }
+            const newIngredient = new Ingredient(newItemId, allItems[newItemId].itemName, elementTwo.x, elementTwo.y);
+            if(newElement) checkAchievements(newIngredient);
+            elementOne.destroy();
+            elementTwo.destroy();
+            updateDiscoveryCounter();
+            updateInventory();
+            await saveWorkspace();
         }
-        const newIngredient = new Ingredient(resultElemId, allItems[resultElemId].itemName, elementTwo.x, elementTwo.y);
-        if(newElement) checkAchievements(newIngredient);
-        elementOne.destroy();
-        elementTwo.destroy();
-        updateDiscoveryCounter();
-        updateInventory();
-        await saveWorkspace();
-        return resultElemId;
+        
+        return resultElemIds;
     }
 }
 
